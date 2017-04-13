@@ -41,6 +41,10 @@ func (vbox *Vbox) StartVm(vmName string) {
 	vbox.Run([]string{"startvm", vmName, "--type", "headless"})
 }
 
+func (vbox *Vbox) StartVmGui(vmName string) {
+	vbox.Run([]string{"startvm", vmName, "--type", "gui"})
+}
+
 func (vbox *Vbox) StopVm(vmName string) {
 	vbox.Run([]string{"controlvm", vmName, "poweroff"})
 }

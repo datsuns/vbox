@@ -38,6 +38,13 @@ var CommandList = []cli.Command{
 		After:   cmdNow,
 	},
 	{
+		Name:    "gui",
+		Aliases: []string{},
+		Usage:   "wakeup VM gui mode",
+		Action:  cmdStartGui,
+		After:   cmdNow,
+	},
+	{
 		Name:    "stop",
 		Aliases: []string{},
 		Usage:   "stop VM",
@@ -115,6 +122,18 @@ func cmdStart(c *cli.Context) error {
 	target := c.Args()[0]
 	fmt.Printf(">> start [%s]\n", target)
 	vbox.StartVm(target)
+	return nil
+}
+
+func cmdStartGui(c *cli.Context) error {
+	vbox := loadVbox(c)
+	if c.NArg() == 0 {
+		fmt.Print(" please specify VM image name")
+		return nil
+	}
+	target := c.Args()[0]
+	fmt.Printf(">> start [%s]\n", target)
+	vbox.StartVmGui(target)
 	return nil
 }
 
