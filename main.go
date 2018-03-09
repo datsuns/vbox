@@ -111,7 +111,7 @@ func cmdNow(c *cli.Context) error {
 	return nil
 }
 
-// if VM name contains while space, such as "VM name",
+// if VM name contains white space, such as "VM name",
 // target name may be surrounded by "
 func cmdStart(c *cli.Context) error {
 	vbox := loadVbox(c)
