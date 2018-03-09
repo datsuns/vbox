@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/urfave/cli"
 	"os"
 	"path/filepath"
@@ -101,11 +102,14 @@ func cmdNow(c *cli.Context) error {
 		}
 	}
 	fmt.Println("\nVM status:")
+	run := color.New(color.FgRed)
+	stop := color.New(color.FgCyan)
 	for k, _ := range all {
+		fmt.Printf(fmt.Sprintf("%%%ds: ", space+1), k)
 		if _, exists := running[k]; exists {
-			fmt.Printf(fmt.Sprintf("%%%ds: Run\n", space+1), k)
+			run.Println("Run")
 		} else {
-			fmt.Printf(fmt.Sprintf("%%%ds: stop\n", space+1), k)
+			stop.Println("stop")
 		}
 	}
 	return nil
