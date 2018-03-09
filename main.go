@@ -151,13 +151,18 @@ func cmdStop(c *cli.Context) error {
 		return nil
 	}
 	target := c.Args()[0]
+	stop := color.New(color.FgRed)
 	if target == "all" {
 		for k, _ := range vbox.RunningVms() {
-			fmt.Printf(">> stop [%s]\n", k)
+			fmt.Printf(">> stop [")
+			stop.Print(k)
+			fmt.Printf("]\n")
 			vbox.StopVm(k)
 		}
 	} else {
-		fmt.Printf(">> stop [%s]\n", target)
+		fmt.Printf(">> stop [")
+		stop.Print(target)
+		fmt.Printf("]\n")
 		vbox.StopVm(target)
 	}
 	return nil
