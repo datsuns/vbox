@@ -124,7 +124,10 @@ func cmdStart(c *cli.Context) error {
 		return nil
 	}
 	target := c.Args()[0]
-	fmt.Printf(">> start [%s]\n", target)
+	run := color.New(color.FgRed)
+	fmt.Printf(">> start [")
+	run.Printf("%s", target)
+	fmt.Printf("]\n")
 	vbox.StartVm(target)
 	return nil
 }
