@@ -123,12 +123,13 @@ func cmdStart(c *cli.Context) error {
 		fmt.Print(" please specify VM image name")
 		return nil
 	}
-	target := c.Args()[0]
-	run := color.New(color.FgRed)
-	fmt.Printf(">> start [")
-	run.Printf("%s", target)
-	fmt.Printf("]\n")
-	vbox.StartVm(target)
+	red := color.New(color.FgRed)
+	for _, target := range c.Args() {
+		fmt.Printf(">> start [")
+		red.Printf("%s", target)
+		fmt.Printf("]\n")
+		vbox.StartVm(target)
+	}
 	return nil
 }
 
