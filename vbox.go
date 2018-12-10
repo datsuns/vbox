@@ -67,7 +67,7 @@ func (vbox *Vbox) Help(params []string) {
 func (vbox *Vbox) getVmList(params []string) map[string]string {
 	ret := map[string]string{}
 	log := vbox.OutputString(append([]string{"list"}, params...))
-	for _, entry := range strings.Split(log, "\n") {
+	for _, entry := range strings.Split(log, "\r\n") {
 		if len(entry) == 0 {
 			continue
 		}
@@ -85,7 +85,7 @@ func parseVmEntryLog(text string) (string, string) {
 
 func execute(tool string, params []string, debug bool, handleError bool) []byte {
 	if debug {
-		fmt.Printf(" >> %v %v\n", tool, params)
+		fmt.Printf(" >>exec %v %v\n", tool, params)
 	}
 	log, err := exec.Command(tool, params...).Output()
 	if handleError {
