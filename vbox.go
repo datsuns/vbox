@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"sort"
 	"strings"
 )
 
@@ -49,12 +50,16 @@ func (vbox *Vbox) StopVm(vmName string) {
 	vbox.Run([]string{"controlvm", vmName, "poweroff"})
 }
 
-func (vbox *Vbox) AllVms() map[string]string {
+func (vbox *Vbox) AllVms() []string {
 	return vbox.getVmList([]string{"vms"})
 }
 
-func (vbox *Vbox) RunningVms() map[string]string {
+func (vbox *Vbox) RunningVms() []string {
 	return vbox.getVmList([]string{"runningvms"})
+}
+
+func (vbox *Vbox) RunningVmsMap() map[string]string {
+	return vbox.getVmListMap([]string{"runningvms"})
 }
 
 // Unfortunately VBoxManage.exe returns != 0 when help command executed
@@ -64,7 +69,21 @@ func (vbox *Vbox) Help(params []string) {
 }
 
 // "NX" {b53046d9-9f2c-41ef-945b-806a8bc6a032} みたいなのが出る
-func (vbox *Vbox) getVmList(params []string) map[string]string {
+func (vbox *Vbox) getVmList(params []string) []string {
+	ret := []string{}
+	log := vbox.OutputString(append([]string{"list"}, params...))
+	for _, entry := range strings.Split(log, "\r\n") {
+		if len(entry) == 0 {
+			continue
+		}
+		name, _ := parseVmEntryLog(entry)
+		ret = append(ret, name)
+	}
+	sort.SliceStable(ret, func(i, j int) bool { return ret[i] > ret[i] })
+	return ret
+}
+
+func (vbox *Vbox) getVmListMap(params []string) map[string]string {
 	ret := map[string]string{}
 	log := vbox.OutputString(append([]string{"list"}, params...))
 	for _, entry := range strings.Split(log, "\r\n") {

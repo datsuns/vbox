@@ -98,10 +98,10 @@ func readStdin() int {
 	return ret
 }
 
-func selectTarget(vms map[string]string) string {
+func selectTarget(vms []string) string {
 	list := []string{}
-	for k, _ := range vms {
-		list = append(list, k)
+	for _, name := range vms {
+		list = append(list, name)
 	}
 	for i, name := range list {
 		fmt.Printf("%2v:%v\n", i, name)
@@ -119,19 +119,19 @@ func loadVbox(c *cli.Context) *Vbox {
 func cmdNow(c *cli.Context) error {
 	vbox := loadVbox(c)
 	all := vbox.AllVms()
-	running := vbox.RunningVms()
+	running := vbox.RunningVmsMap()
 	space := 0
-	for k, _ := range all {
-		if space < len(k) {
-			space = len(k)
+	for _, name := range all {
+		if space < len(name) {
+			space = len(name)
 		}
 	}
 	fmt.Println("\nVM status:")
 	run := color.New(color.FgRed)
 	stop := color.New(color.FgCyan)
-	for k, _ := range all {
-		fmt.Printf(fmt.Sprintf("%%%ds: ", space+1), k)
-		if _, exists := running[k]; exists {
+	for _, name := range all {
+		fmt.Printf(fmt.Sprintf("%%%ds: ", space+1), name)
+		if _, exists := running[name]; exists {
 			run.Println("Run")
 		} else {
 			stop.Println("stop")
@@ -182,11 +182,11 @@ func cmdStop(c *cli.Context) error {
 		target := c.Args()[0]
 		stop := color.New(color.FgRed)
 		if target == "all" {
-			for k, _ := range vbox.RunningVms() {
+			for _, name := range vbox.RunningVms() {
 				fmt.Printf(">> stop [")
-				stop.Print(k)
+				stop.Print(name)
 				fmt.Printf("]\n")
-				vbox.StopVm(k)
+				vbox.StopVm(name)
 			}
 		} else {
 			fmt.Printf(">> stop [")
