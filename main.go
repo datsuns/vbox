@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/urfave/cli"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 var DEFAULT_TOOL_PATH = fmt.Sprintf("C:%cProgram Files%cOracle%cVirtualBox%cVBoxManage.exe", filepath.Separator, filepath.Separator, filepath.Separator, filepath.Separator)
@@ -86,6 +88,29 @@ func getGlobalContext(c *cli.Context) *cli.Context {
 	}
 }
 
+func readStdin() int {
+	row := bufio.NewScanner(os.Stdin)
+	row.Scan()
+	ret, err := strconv.Atoi(row.Text())
+	if err != nil {
+		panic(err)
+	}
+	return ret
+}
+
+func selectTarget(vms map[string]string) string {
+	list := []string{}
+	for k, _ := range vms {
+		list = append(list, k)
+	}
+	for i, name := range list {
+		fmt.Printf("%2v:%v\n", i, name)
+	}
+	fmt.Printf(">> target No.:")
+	n := readStdin()
+	return list[n]
+}
+
 func loadVbox(c *cli.Context) *Vbox {
 	ctx := getGlobalContext(c)
 	return NewVbox(ctx.String(toolPathOption), ctx.Bool("verbose"))
@@ -119,16 +144,18 @@ func cmdNow(c *cli.Context) error {
 // target name may be surrounded by "
 func cmdStart(c *cli.Context) error {
 	vbox := loadVbox(c)
-	if c.NArg() == 0 {
-		fmt.Print(" please specify VM image name")
-		return nil
-	}
 	red := color.New(color.FgRed)
-	for _, target := range c.Args() {
-		fmt.Printf(">> start [")
-		red.Printf("%s", target)
-		fmt.Printf("]\n")
+	if c.NArg() == 0 {
+		target := selectTarget(vbox.AllVms())
+		fmt.Printf("start [%v]\n", target)
 		vbox.StartVm(target)
+	} else {
+		for _, target := range c.Args() {
+			fmt.Printf(">> start [")
+			red.Printf("%s", target)
+			fmt.Printf("]\n")
+			vbox.StartVm(target)
+		}
 	}
 	return nil
 }
@@ -148,23 +175,25 @@ func cmdStartGui(c *cli.Context) error {
 func cmdStop(c *cli.Context) error {
 	vbox := loadVbox(c)
 	if c.NArg() == 0 {
-		fmt.Print(" please specify VM image name")
-		return nil
-	}
-	target := c.Args()[0]
-	stop := color.New(color.FgRed)
-	if target == "all" {
-		for k, _ := range vbox.RunningVms() {
-			fmt.Printf(">> stop [")
-			stop.Print(k)
-			fmt.Printf("]\n")
-			vbox.StopVm(k)
-		}
-	} else {
-		fmt.Printf(">> stop [")
-		stop.Print(target)
-		fmt.Printf("]\n")
+		target := selectTarget(vbox.AllVms())
+		fmt.Printf("stop [%v]\n", target)
 		vbox.StopVm(target)
+	} else {
+		target := c.Args()[0]
+		stop := color.New(color.FgRed)
+		if target == "all" {
+			for k, _ := range vbox.RunningVms() {
+				fmt.Printf(">> stop [")
+				stop.Print(k)
+				fmt.Printf("]\n")
+				vbox.StopVm(k)
+			}
+		} else {
+			fmt.Printf(">> stop [")
+			stop.Print(target)
+			fmt.Printf("]\n")
+			vbox.StopVm(target)
+		}
 	}
 	return nil
 }
